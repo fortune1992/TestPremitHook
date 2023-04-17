@@ -1,0 +1,191 @@
+<?xml version="1.0"?><!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+    "http://checkstyle.sourceforge.net/dtds/configuration_1_3.dtd">
+
+<!--
+    Built base on the following templates:
+        http://blog.csdn.net/will_awoke/article/details/12705611
+        http://blog.csdn.net/yang1982_0907/article/details/18086693
+        https://github.com/checkstyle/checkstyle/blob/master/src/main/resources/google_checks.xml
+
+    More details about check style:
+        http://checkstyle.sourceforge.net/checks.html
+ -->
+
+<module name="Checker">
+    <property name="charset" value="UTF-8" />
+
+    <property name="severity" value="error" />
+
+    <property name="fileExtensions" value="java, properties, xml" />
+
+    <!-- tab('\t')制表符检测-->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="false" />
+    </module>
+
+    <!--单行规则-->
+    <module name="RegexpSingleline">
+        <!-- \s matches whitespace character, $ matches end of line. -->
+        <property name="format" value="\s+$" />
+        <property name="message" value="Trailing whitespace is prohibited, but found." />
+    </module>
+
+    <!--文件末尾空一行-->
+    <module name="NewlineAtEndOfFile">
+        <property name="lineSeparator" value="lf" />
+    </module>
+
+    <!-- 运行通过注解跳过checkstyle某些规则检测， 例如：@SuppressWarnings({"NoWhitespaceAfter"}) http://checkstyle.sourceforge.net/config_filters.html#SuppressWarningsFilter-->
+    <module name="SuppressWarningsFilter" />
+
+    <module name="TreeWalker">
+        <module name="SuppressWarningsHolder" />
+        <module name="EmptyLineSeparator">
+            <!--允许变量之间不空行-->
+            <property name="allowNoEmptyLineBetweenFields" value="true" />
+            <!--不允许多行空行间隔-->
+            <property name="allowMultipleEmptyLines" value="false" />
+        </module>
+
+        <!-- checkstyle对lambda表达式的检测有问题，目前注掉intentation检测 -->
+        <!--
+        <module name="Indentation">
+          <property name="basicOffset" value="4"/>
+          <property name="braceAdjustment" value="0"/>
+          <property name="caseIndent" value="4"/>
+          <property name="throwsIndent" value="4"/>
+          <property name="lineWrappingIndentation" value="8"/>
+          <property name="arrayInitIndent" value="4"/>
+        </module>
+        -->
+
+        <!--注释缩进 http://checkstyle.sourceforge.net/config_misc.html-->
+        <module name="CommentsIndentation" />
+
+        <!-- 非法引入 defaults to sun.* packages -->
+        <module name="IllegalImport" />
+        <!-- 重复引入 -->
+        <module name="RedundantImport" />
+        <!-- 无效引入 -->
+        <module name="UnusedImports" />
+
+        <!-- 命名约束 -->
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9_]*)*$" />
+            <message key="name.invalidPattern"
+                value="Package name ''{0}'' must match pattern ''{1}''." />
+        </module>
+        <module name="TypeName">
+            <message key="name.invalidPattern"
+                value="Type name ''{0}'' must match pattern ''{1}''." />
+        </module>
+        <module name="MemberName">
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$" />
+            <message key="name.invalidPattern"
+                value="Member name ''{0}'' must match pattern ''{1}''." />
+        </module>
+        <module name="ParameterName">
+            <property name="format" value="^[a-z]([a-zA-Z0-9_]*)?$" />
+            <message key="name.invalidPattern"
+                value="Parameter name ''{0}'' must match pattern ''{1}''." />
+        </module>
+        <module name="LocalVariableName">
+            <property name="tokens" value="VARIABLE_DEF" />
+            <property name="format" value="^[a-z_]([a-zA-Z0-9_]*)?$" />
+            <message key="name.invalidPattern"
+                value="Local variable name ''{0}'' must match pattern ''{1}''." />
+        </module>
+        <module name="LocalFinalVariableName" />
+        <module name="StaticVariableName" />
+        <module name="ConstantName">
+            <property name="format" value="(^[A-Z]([A-Z0-9_]*)?$)" />
+        </module>
+        <module name="ClassTypeParameterName">
+            <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+            <message key="name.invalidPattern"
+                value="Class type name ''{0}'' must match pattern ''{1}''." />
+        </module>
+        <module name="MethodTypeParameterName">
+            <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)" />
+            <message key="name.invalidPattern"
+                value="Method type name ''{0}'' must match pattern ''{1}''." />
+        </module>
+        <module name="InterfaceTypeParameterName">
+            <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)" />
+            <message key="name.invalidPattern"
+                value="Interface type name ''{0}'' must match pattern ''{1}''." />
+        </module>
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$" />
+            <message key="name.invalidPattern"
+                value="Method name ''{0}'' must match pattern ''{1}''." />
+        </module>
+
+        <!--一些符号后需要有空格 例如if, while... http://checkstyle.sourceforge.net/config_whitespace.html#WhitespaceAfter-->
+        <module name="WhitespaceAfter" />
+        <!-- 一些符号前不能有空格 例如;/++ http://checkstyle.sourceforge.net/config_whitespace.html#NoWhitespaceBefore-->
+        <module name="NoWhitespaceBefore" />
+        <!-- 一些符号后不能有空格 例如int[] http://checkstyle.sourceforge.net/config_whitespace.html#NoWhitespaceAfter-->
+        <module name="NoWhitespaceAfter" />
+        <!-- 空行或空块限制 http://checkstyle.sourceforge.net/config_whitespace.html#WhitespaceAround-->
+        <module name="WhitespaceAround">
+            <property name="allowEmptyConstructors" value="true" />
+            <property name="allowEmptyMethods" value="true" />
+            <property name="allowEmptyTypes" value="true" />
+            <property name="allowEmptyLoops" value="true" />
+            <property name="allowEmptyLambdas" value="true" />
+            <message key="ws.notFollowed"
+                value="WhitespaceAround: ''{0}'' is not followed by whitespace. Empty blocks may only be represented as '{}' when not part of a multi-block statement (4.1.3)" />
+            <message key="ws.notPreceded"
+                value="WhitespaceAround: ''{0}'' is not preceded with whitespace." />
+        </module>
+        <module name="GenericWhitespace">
+            <message key="ws.followed"
+                value="GenericWhitespace ''{0}'' is followed by whitespace." />
+            <message key="ws.preceded"
+                value="GenericWhitespace ''{0}'' is preceded with whitespace." />
+            <message key="ws.illegalFollow"
+                value="GenericWhitespace ''{0}'' should followed by whitespace." />
+            <message key="ws.notPreceded"
+                value="GenericWhitespace ''{0}'' is not preceded with whitespace." />
+        </module>
+
+        <!--{}检测-->
+        <module name="NeedBraces" />
+        <!--空块-->
+        <module name="EmptyBlock">
+            <property name="option" value="TEXT" />
+            <property name="tokens"
+                value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH" />
+        </module>
+        <!--空catch检测，除非用//expected或//ignore注释-->
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="expected|ignored" />
+        </module>
+        <!--左{ -->
+        <module name="LeftCurly">
+            <!--行尾 http://checkstyle.sourceforge.net/property_types.html#lcurly-->
+            <property name="option" value="eol" />
+        </module>
+        <!--右} -->
+        <module name="RightCurly">
+            <!--同行-->
+            <property name="id" value="RightCurlySame" />
+            <property name="tokens"
+                value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO" />
+        </module>
+        <module name="RightCurly">
+            <!--单独一行-->
+            <property name="id" value="RightCurlyAlone" />
+            <property name="option" value="alone" />
+            <property name="tokens"
+                value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT, INSTANCE_INIT" />
+        </module>
+
+        <!-- No need for Javadoc -->
+        <module name="JavadocVariable">
+            <property name="severity" value="ignore" />
+        </module>
+    </module>
+</module>

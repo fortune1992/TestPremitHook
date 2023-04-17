@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<FindBugsFilter xmlns="http://findbugs.sourceforge.net/filter/3.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://findbugs.sourceforge.net/filter/3.0.0 https://findbugs.googlecode.com/git/findbugs/etc/findbugsfilter.xsd">
+
+  <Match>
+    <Class name = "~.*\.R\$.*"/>
+  </Match>
+
+  <Match>
+    <Class name = "~.*\.Manifest\$.*"/>
+  </Match>
+
+  <!-- Do not check auto-generated classes (Dagger puts $ into class names) -->
+  <Match>
+    <Class name="~.*Dagger*.*"/>
+  </Match>
+     
+  <!-- Ignore UPM in lambdas from Retrolambda, FindBugs does not correctly understand them -->
+  <Match>
+    <Bug code="UPM"/>
+    <Class name="~.*\$\$Lambda\$.*"/>
+  </Match>
+ 
+  <!-- region Malicious Code Vulnerability（恶意破坏代码） -->
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP"/>
+  </Match>
+  <!-- endregion -->
+ 
+  <!-- region Bad Practice（不好的实践） -->
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP2"/>
+  </Match>
+
+  <Match>
+    <Bug pattern="DE_MIGHT_IGNORE"/>
+  </Match>
+
+  <Match>
+    <Bug pattern="DE_MIGHT_DROP"/>
+  </Match>
+
+  <Match>
+    <Bug pattern="DM_DEFAULT_ENCODING"/>
+  </Match>
+  <!-- endregion -->
+ 
+  <!-- Dodgy code Warnings gson直接转换赋值的方式-->
+  <Match>
+    <Bug pattern="UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+  </Match>
+
+  <Match>
+    <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
+  </Match>
+  <!-- endregion -->
+ 
+</FindBugsFilter>

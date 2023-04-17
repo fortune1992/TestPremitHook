@@ -1,0 +1,25 @@
+repositories {
+    jcenter()
+}
+
+configurations {
+    detekt
+}
+
+dependencies {
+    detekt 'io.gitlab.arturbosch.detekt:detekt-cli:1.0.0-RC14'
+    detekt 'io.gitlab.arturbosch.detekt:detekt-formatting:1.0.0-RC14'
+}
+
+task detekt(type: JavaExec) {
+    description = "Kotlin static code analysis."
+    main = "io.gitlab.arturbosch.detekt.cli.Main"
+    classpath = configurations.detekt
+    def input = "$projectDir"
+    def config = "$rootProject.rootDir/config/kotlin/detekt-config.yml"
+    def filters = ".*/resources/.*,.*/build/.*,.*/test/.*"
+    def baseline = "$rootProject.rootDir/sample/"
+    def reports = "xml:$project.buildDir/reports/detekt/kotlin-reports.xml"
+    def params = [ '-i', input, '-c', config, '-f', filters, '-r', reports, '-b', baseline]
+    args(params)
+}

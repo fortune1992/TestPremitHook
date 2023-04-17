@@ -1,0 +1,25 @@
+apply plugin: 'checkstyle'
+
+checkstyle {
+    configFile new File(rootProject.rootDir, 'config/checkstyle/checkstyle.xml')
+    configProperties.checkstyleSuppressionFilterPath = new File(
+            "${project.rootDir}/config/checkstyle/checkstyle-suppression.xml")
+            .absolutePath
+    toolVersion '8.13'
+    ignoreFailures false
+    showViolations true
+}
+
+task('checkstyle', type: Checkstyle) {
+    source  'src'
+    exclude '**/gen/**'
+    exclude '**/test/**'
+    exclude '**/build/**'
+    include '**/*.java'
+    exclude '**/R.java'
+    exclude '**/BuildConfig.java'
+    classpath = files()
+}
+
+
+
