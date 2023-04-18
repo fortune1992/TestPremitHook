@@ -6,9 +6,9 @@ import platform
 
 def check_style():
     if platform.system().lower() == 'windows':
-        ret = subprocess.call(["gradlew", "checkstyle"], shell=True)
+        ret = subprocess.call(["gradlew", "checkstyle", "-PcheckCommit=true"], shell=True)
     else:
-        ret = subprocess.call(["./gradlew", "checkstyle"])
+        ret = subprocess.call(["./gradlew", "checkstyle", "-PcheckCommit=true"])
 
     print(ret)
 
@@ -16,9 +16,9 @@ def check_style():
         return ret
 
     if platform.system().lower() == 'windows':
-        ret = subprocess.call(["gradlew", "detekt"], shell=True)
+        ret = subprocess.call(["gradlew", "detekt", "-PcheckCommit=true"], shell=True)
     else:
-        ret = subprocess.call(["./gradlew", "detekt"])
+        ret = subprocess.call(["./gradlew", "detekt", "-PcheckCommit=true"])
     print(ret)
 
     return ret

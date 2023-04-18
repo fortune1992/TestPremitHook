@@ -1,7 +1,16 @@
 import java.security.MessageDigest
 
 ext {
+
     getChangedFiles = {
+        if (isReleaseBuildType()) {
+            return getRecentlyCommitChangedFiles()
+        } else {
+            return getLocalChangedFiles()
+        }
+    }
+
+    getLocalChangedFiles = {
         try {
             String changeInfo = 'git status -s'.execute([], project.rootDir).text.trim()
             return changeInfo == null ? "" : changeInfo
@@ -10,14 +19,25 @@ ext {
         }
     }
 
+    getRecentlyCommitChangedFiles = {
+        try {
+            String changeInfo = 'git diff --name-status HEAD~ HEAD'.execute([]).text.trim()
+            return changeInfo == null ? "" : changeInfo
+        } catch (Exception ignored) {
+            return ""
+        }
+    }
+
     filterCommitter = { String gitStatusInfo, String fileSuffix ->
-        ArrayList filterList = new ArrayList();
+        ArrayList filterList = new ArrayList()
         String[] lines = gitStatusInfo.split("\\n")
         for (String line : lines) {
             if (line.contains(fileSuffix)) {
-                String[] spliters = line.trim().split(" ")
+                String[] spliters = line.trim().split("\\s+")
                 if (spliters.length > 0 &&
-                        (spliters[0].equalsIgnoreCase("M") || spliters[0].equalsIgnoreCase("A"))) {
+                        (spliters[0].equalsIgnoreCase("M") ||
+                                spliters[0].equalsIgnoreCase("A") ||
+                                spliters[0].equalsIgnoreCase("AM"))) {
                     for (String str : spliters) {
                         if (str.contains(fileSuffix)) {
                             filterList.add(str)
@@ -53,6 +73,15 @@ ext {
         String file2Md5 = generateMD5(file2.getAbsolutePath())
         return file1Md5 == file2Md5
     }
+
+    isReleaseBuildType = {
+        for (String s : gradle.startParameter.taskNames) {
+            if (s.toLowerCase().contains("release")) {
+                return true
+            }
+        }
+        return false
+    }
 }
 
 task installGitHooks(type: Copy) {
@@ -77,7 +106,7 @@ installGitHooks.onlyIf {
 
 afterEvaluate {
     def prebuild = tasks.findByName("preBuild")
-    if (prebuild != null) {
+    if (prebuild != null && !isReleaseBuildType) {
         prebuild.dependsOn(installGitHooks)
     }
 }

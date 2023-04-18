@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_settings -> true
 
+
             else -> super.onOptionsItemSelected(item)
         }
     }

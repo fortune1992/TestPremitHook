@@ -22,7 +22,6 @@ task checkstyle(type: Checkstyle) {
     exclude '**/gen/**'
     exclude '**/test/**'
     exclude '**/build/**'
-    include '**/*.java'
     exclude '**/R.java'
     exclude '**/BuildConfig.java'
     if (hasCheckCommitParam()) {
@@ -32,12 +31,13 @@ task checkstyle(type: Checkstyle) {
             String spliter = filterFileNameList[i]
             String[] spliterList = spliter.split("/")
             String fileName = spliterList[spliterList.length - 1]
+            println("fileName: " + fileName)
             includeList.add("**/" + fileName)
         }
         if (includeList.size() == 0) {
             exclude '**/*.java'
         } else {
-            include '**/*.java'
+            include includeList
         }
     } else {
         include '**/*.java'
