@@ -47,26 +47,3 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
-
-gradle.taskGraph.beforeTask { task ->
-    String taskString = task.toString().toLowerCase()
-    if (taskString.contains("app") && taskString.contains("prebuild")) {
-        task.dependsOn runCheckStyle()
-    }
-}
-
-task installGitHook(type: Copy) {
-    from new File(rootProject.rootDir, 'gitHook/commit-msg')
-    into {
-        new File(rootProject.rootDir, '.git/hooks')
-    }
-    fileMode 0755
-
-    from new File(rootProject.rootDir, 'gitHook/pre-commit')
-    into {
-        new File(rootProject.rootDir, '.git/hooks')
-    }
-    fileMode 0755
-}
-
-preBuild.dependsOn(installGitHook)

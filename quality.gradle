@@ -1,4 +1,9 @@
 apply plugin: 'checkstyle'
+apply from: rootProject.file("commit.gradle")
+
+configurations {
+    checkstyle
+}
 
 checkstyle {
     configFile new File(rootProject.rootDir, 'config/checkstyle/checkstyle.xml')
@@ -10,7 +15,9 @@ checkstyle {
     showViolations true
 }
 
-task('checkstyle', type: Checkstyle) {
+task checkstyle(type: Checkstyle) {
+    description = "Java static code analysis."
+    classpath = configurations.checkstyle
     source  'src'
     exclude '**/gen/**'
     exclude '**/test/**'
@@ -18,6 +25,23 @@ task('checkstyle', type: Checkstyle) {
     include '**/*.java'
     exclude '**/R.java'
     exclude '**/BuildConfig.java'
+    if (project.hasProperty('checkCommit') && project.property("checkCommit")) {
+        def filterFileNameList = filterCommitter(getChangedFiles(), ".java")
+        def includeList = new ArrayList()
+        for (int i = 0; i < filterFileNameList.size(); i++) {
+            String spliter = filterFileNameList[i]
+            String[] spliterList = spliter.split("/")
+            String fileName = spliterList[spliterList.length - 1]
+            includeList.add("**/" + fileName)
+        }
+        if (includeList.size() == 0) {
+            exclude '**/*.java'
+        } else {
+            include '**/*.java'
+        }
+    } else {
+        include '**/*.java'
+    }
     classpath = files()
 }
 

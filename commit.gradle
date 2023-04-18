@@ -1,0 +1,65 @@
+import java.security.MessageDigest
+
+ext {
+    getChangedFiles = {
+        try {
+            String changeInfo = 'git status -s'.execute(null, project.rootDir).text.trim()
+            return changeInfo == null ? "" : changeInfo
+        } catch (Exception ignored) {
+            return ""
+        }
+    }
+
+    filterCommitter = { String gitStatusInfo, String fileSuffix ->
+        ArrayList filterList = new ArrayList();
+        String[] lines = gitStatusInfo.split("\\n")
+        for (String line : lines) {
+            if (line.contains(fileSuffix)) {
+                String[] spliters = line.trim().split(" ")
+                for (String str : spliters) {
+                    if (str.contains(fileSuffix)) {
+                        filterList.add(str)
+                    }
+                }
+            }
+        }
+        return filterList
+    }
+
+    generateMD5 = { String path ->
+        MessageDigest digest = MessageDigest.getInstance("MD5")
+        FileInputStream fis= new FileInputStream(path)
+        ByteArrayOutputStream bos = new ByteArrayOutputStream()
+        byte[] b = new byte[1024]
+        int n
+        while ((n = fis.read(b)) != -1) {
+            bos.write(b, 0, n)
+        }
+        fis.close()
+        bos.close()
+        digest.update(bos.toByteArray())
+        return new BigInteger(1, digest.digest()).toString(16).padLeft(32, '0')
+    }
+
+    isSameFile = { File file1, File file2 ->
+        String file1Md5 = generateMD5(file1.getAbsolutePath())
+        String file2Md5 = generateMD5(file2.getAbsolutePath())
+        return file1Md5 == file2Md5
+    }
+}
+
+task installGitHooks(type: Copy) {
+    File targetCommitMsgFile = new File(rootProject.rootDir, '.git/hooks/commit-msg')
+    File sourceCommitMsgFile = new File(rootProject.rootDir, 'gitHook/commit-msg')
+    if (!targetCommitMsgFile.exists() || !isSameFile(sourceCommitMsgFile, targetCommitMsgFile)) {
+        from sourceCommitMsgFile
+    }
+    File targetPreCommitFile = new File(rootProject.rootDir, '.git/hooks/pre-commit')
+    File sourcePreCommitFile = new File(rootProject.rootDir, 'gitHook/pre-commit')
+    from new File(rootProject.rootDir, 'gitHook/pre-commit')
+    if (!targetPreCommitFile.exists() || !isSameFile(sourcePreCommitFile, targetPreCommitFile)) {
+        from sourcePreCommitFile
+    }
+    into { new File(rootProject.rootDir, '.git/hooks') }
+    fileMode 0755
+}
