@@ -13,21 +13,11 @@ dependencies {
 
 task detekt(type: JavaExec) {
     description = "Kotlin static code analysis."
-    main = "io.gitlab.arturbosch.detekt.cli.Main"
     classpath = configurations.detekt
+    main = "io.gitlab.arturbosch.detekt.cli.Main"
     def input
-    if (project.hasProperty('checkCommit') && project.property("checkCommit")) {
-        def changedFileNameList = filterCommitter(getChangedFiles(), ".kt")
-        StringBuilder sb = new StringBuilder()
-        for (int i = 0; i < changedFileNameList.size(); i++) {
-            if (i > 0) {
-                sb.append(", ")
-            }
-            String changedFileName = changedFileNameList.get(i)
-            sb.append("$project.rootDir/")
-            sb.append(changedFileName)
-        }
-        input = sb.toString()
+    if (hasCheckCommitParam()) {
+        input = getDeteKtInput()
     } else {
         input = "$project.rootDir"
     }
@@ -36,4 +26,27 @@ task detekt(type: JavaExec) {
     def reports = "xml:$project.buildDir/reports/detekt/kotlin-reports.xml"
     def params = ['-i', input, '-c', config, '-r', reports, "-ex", exclude]
     args(params)
+}
+
+// 有文件变更才会执行detekt(detekt input传空会导致task报错，需要用条件控制task是否执行)
+detekt.onlyIf {
+    if (project.hasProperty('checkCommit') && project.property("checkCommit")) {
+        !getDeteKtInput().isEmpty()
+    } else {
+        true
+    }
+}
+
+def getDeteKtInput() {
+    def changedFileNameList = filterCommitter(getChangedFiles(), ".kt")
+    StringBuilder sb = new StringBuilder()
+    for (int i = 0; i < changedFileNameList.size(); i++) {
+        if (i > 0) {
+            sb.append(", ")
+        }
+        String changedFileName = changedFileNameList.get(i)
+        sb.append("$project.rootDir/")
+        sb.append(changedFileName)
+    }
+    return sb.toString()
 }

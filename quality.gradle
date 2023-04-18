@@ -25,7 +25,7 @@ task checkstyle(type: Checkstyle) {
     include '**/*.java'
     exclude '**/R.java'
     exclude '**/BuildConfig.java'
-    if (project.hasProperty('checkCommit') && project.property("checkCommit")) {
+    if (hasCheckCommitParam()) {
         def filterFileNameList = filterCommitter(getChangedFiles(), ".java")
         def includeList = new ArrayList()
         for (int i = 0; i < filterFileNameList.size(); i++) {

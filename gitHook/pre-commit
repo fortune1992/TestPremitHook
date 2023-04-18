@@ -2,25 +2,7 @@
 
 echo "start codes check,please wait..."
 
-echo "========================================================================"
-echo "Tips: git commit出现如下错误时："
-echo "1) .git/hooks/pre-commit: unexpected EOF while looking for matching ``'"
-echo "2) .git/hooks/pre-commit: syntax error: unexpected end of file"
-echo "3) .git/hooks/pre-commit: hen: command not found'"
-echo "4) ..."
-echo "通常是因为gitHooks配置变更导致，重新提交即可解决。@pengguolong"
-echo "========================================================================"
-
 DIR=$(cd $(dirname $0) && pwd )
-
-# 拷贝gitHooks
-OUTPUT=`cd $DIR/../../; ./gradlew installGitHooks`
-
-EXIT_CODE=$?
-if [ $EXIT_CODE -ne 0 ]; then
-  echo "$OUTPUT" # 双引号控制换行
-  exit EXIT_CODE
-fi
 
 # 执行detekt检查
 OUTPUT=`cd $DIR/../../; ./gradlew -PcheckCommit="true" detekt`

@@ -3,7 +3,7 @@ import java.security.MessageDigest
 ext {
     getChangedFiles = {
         try {
-            String changeInfo = 'git status -s'.execute(null, project.rootDir).text.trim()
+            String changeInfo = 'git status -s'.execute([], project.rootDir).text.trim()
             return changeInfo == null ? "" : changeInfo
         } catch (Exception ignored) {
             return ""
@@ -16,9 +16,12 @@ ext {
         for (String line : lines) {
             if (line.contains(fileSuffix)) {
                 String[] spliters = line.trim().split(" ")
-                for (String str : spliters) {
-                    if (str.contains(fileSuffix)) {
-                        filterList.add(str)
+                if (spliters.length > 0 &&
+                        (spliters[0].equalsIgnoreCase("M") || spliters[0].equalsIgnoreCase("A"))) {
+                    for (String str : spliters) {
+                        if (str.contains(fileSuffix)) {
+                            filterList.add(str)
+                        }
                     }
                 }
             }
@@ -26,9 +29,13 @@ ext {
         return filterList
     }
 
+    hasCheckCommitParam = {
+        return project.hasProperty('checkCommit') && project.property("checkCommit")
+    }
+
     generateMD5 = { String path ->
         MessageDigest digest = MessageDigest.getInstance("MD5")
-        FileInputStream fis= new FileInputStream(path)
+        FileInputStream fis = new FileInputStream(path)
         ByteArrayOutputStream bos = new ByteArrayOutputStream()
         byte[] b = new byte[1024]
         int n
@@ -49,17 +56,28 @@ ext {
 }
 
 task installGitHooks(type: Copy) {
-    File targetCommitMsgFile = new File(rootProject.rootDir, '.git/hooks/commit-msg')
-    File sourceCommitMsgFile = new File(rootProject.rootDir, 'gitHook/commit-msg')
-    if (!targetCommitMsgFile.exists() || !isSameFile(sourceCommitMsgFile, targetCommitMsgFile)) {
-        from sourceCommitMsgFile
-    }
-    File targetPreCommitFile = new File(rootProject.rootDir, '.git/hooks/pre-commit')
-    File sourcePreCommitFile = new File(rootProject.rootDir, 'gitHook/pre-commit')
+    from new File(rootProject.rootDir, 'gitHook/commit-msg')
     from new File(rootProject.rootDir, 'gitHook/pre-commit')
-    if (!targetPreCommitFile.exists() || !isSameFile(sourcePreCommitFile, targetPreCommitFile)) {
-        from sourcePreCommitFile
-    }
     into { new File(rootProject.rootDir, '.git/hooks') }
     fileMode 0755
+}
+
+installGitHooks.onlyIf {
+    File targetCommitMsgFile = new File(rootProject.rootDir, '.git/hooks/commit-msg')
+    File sourceCommitMsgFile = new File(rootProject.rootDir, 'gitHook/commit-msg')
+
+    File targetPreCommitFile = new File(rootProject.rootDir, '.git/hooks/pre-commit')
+    File sourcePreCommitFile = new File(rootProject.rootDir, 'gitHook/pre-commit')
+
+    !targetCommitMsgFile.exists() ||
+            !targetPreCommitFile.exists() ||
+            !isSameFile(sourceCommitMsgFile, targetCommitMsgFile) ||
+            !isSameFile(sourcePreCommitFile, targetPreCommitFile)
+}
+
+afterEvaluate {
+    def prebuild = tasks.findByName("preBuild")
+    if (prebuild != null) {
+        prebuild.dependsOn(installGitHooks)
+    }
 }
