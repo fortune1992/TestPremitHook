@@ -2,10 +2,11 @@
 
 echo "start codes check,please wait..."
 
-DIR=$(cd $(dirname $0) && pwd )
+# 获取git hooks目录：项目根目录/.git/hooks
+LOCAL_GIT_HOOKS_DIR=$(cd $(dirname $0) && pwd )
 
 # 执行detekt检查
-OUTPUT=`cd $DIR/../../; ./gradlew -PcheckCommit="true" detekt`
+OUTPUT=`cd $LOCAL_GIT_HOOKS_DIR/../../; ./gradlew -PcheckCommit="true" detekt`
 
 EXIT_CODE=$?
 if [ $EXIT_CODE -ne 0 ]; then
@@ -14,7 +15,7 @@ if [ $EXIT_CODE -ne 0 ]; then
 fi
 
 # 执行java checkstyle检查
-OUTPUT=`cd $DIR/../../; ./gradlew -PcheckCommit="true" checkstyle`
+OUTPUT=`cd $LOCAL_GIT_HOOKS_DIR/../../; ./gradlew -PcheckCommit="true" checkstyle`
 
 EXIT_CODE=$?
 if [ $EXIT_CODE -ne 0 ]; then

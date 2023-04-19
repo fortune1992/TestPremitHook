@@ -8,13 +8,8 @@ import java.util.*;
  */
 public class Test2 {
 
-    public void main(){
-
+    public void main() {
 
 
     }
-
-
-
-
 }

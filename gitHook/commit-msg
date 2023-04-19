@@ -32,7 +32,7 @@ checkCommitTitlePrefix() {
 	   exit 0
 	fi
     echo "commit message must start with one of the following type: $prefixStr"
-    echo "eg: [bug]:"
+    echo "eg: bug:"
     exit 1
 }
 
