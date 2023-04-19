@@ -1,5 +1,6 @@
 apply plugin: 'checkstyle'
 apply from: rootProject.file("commit.gradle")
+apply from: rootProject.file("detekt.gradle")
 
 configurations {
     checkstyle
@@ -24,14 +25,13 @@ task checkstyle(type: Checkstyle) {
     exclude '**/build/**'
     exclude '**/R.java'
     exclude '**/BuildConfig.java'
-    if (hasCheckCommitParam()) {
-        def filterFileNameList = filterCommitter(getChangedFiles(), ".java")
+    if (hasCheckCommitParam() || isReleaseBuildType()) {
+        def filterFileNameList = findChangedFiles(getChangedFiles(), ".java")
         def includeList = new ArrayList()
         for (int i = 0; i < filterFileNameList.size(); i++) {
             String spliter = filterFileNameList[i]
             String[] spliterList = spliter.split("/")
             String fileName = spliterList[spliterList.length - 1]
-            println("fileName: " + fileName)
             includeList.add("**/" + fileName)
         }
         if (includeList.size() == 0) {
@@ -43,6 +43,29 @@ task checkstyle(type: Checkstyle) {
         include '**/*.java'
     }
     classpath = files()
+}
+
+/**
+ * gradle 生命周期
+ * 1、初始化阶段
+ * 2、配置阶段
+ * 3、执行阶段
+ *
+ * afterEvaluate： Project配置结束后调用
+ */
+afterEvaluate {
+    def prebuild = tasks.findByName("preBuild")
+    if (prebuild != null) {
+        if (isReleaseBuildType()) {
+            // Release 注册deteKt, checkStyle
+            prebuild.dependsOn("detekt", "checkstyle")
+        } else {
+            // DEBUG 注册gitHooks
+            if (project.name.equalsIgnoreCase("app")) {
+                prebuild.dependsOn("installGitHooks")
+            }
+        }
+    }
 }
 
 

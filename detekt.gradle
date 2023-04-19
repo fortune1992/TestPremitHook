@@ -16,7 +16,7 @@ task detekt(type: JavaExec) {
     classpath = configurations.detekt
     main = "io.gitlab.arturbosch.detekt.cli.Main"
     def input
-    if (hasCheckCommitParam()) {
+    if (hasCheckCommitParam() || isReleaseBuildType()) {
         input = getDeteKtInput()
     } else {
         input = "$project.rootDir"
@@ -30,7 +30,7 @@ task detekt(type: JavaExec) {
 
 // 有文件变更才会执行detekt(detekt input传空会导致task报错，需要用条件控制task是否执行)
 detekt.onlyIf {
-    if (project.hasProperty('checkCommit') && project.property("checkCommit")) {
+    if (hasCheckCommitParam() || isReleaseBuildType()) {
         !getDeteKtInput().isEmpty()
     } else {
         true
@@ -38,7 +38,7 @@ detekt.onlyIf {
 }
 
 def getDeteKtInput() {
-    def changedFileNameList = filterCommitter(getChangedFiles(), ".kt")
+    def changedFileNameList = findChangedFiles(getChangedFiles(), ".kt")
     StringBuilder sb = new StringBuilder()
     for (int i = 0; i < changedFileNameList.size(); i++) {
         if (i > 0) {

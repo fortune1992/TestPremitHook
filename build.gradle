@@ -7,7 +7,6 @@ plugins {
 
 subprojects {
     apply from: rootProject.file("quality.gradle")
-    apply from: rootProject.file("detekt.gradle")
 }
 
 task clean(type: Delete) {
@@ -17,14 +16,5 @@ task clean(type: Delete) {
 def runCheckStyle() {
     exec {
         commandLine 'python', './checkstyle.py'
-    }
-}
-
-gradle.taskGraph.beforeTask { Task task ->
-    String taskString = task.toString().toLowerCase()
-    // 做一些编译开始之前的工作，比如release版本checkstyle 检测
-    if (taskString.contains("app") && taskString.contains("prerelease")) {
-        println "executing " + task.toString()
-        task.dependsOn runCheckStyle()
     }
 }

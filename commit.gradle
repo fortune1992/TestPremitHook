@@ -1,7 +1,9 @@
 import java.security.MessageDigest
 
 ext {
-
+    // 获取本地文件变更：
+    // release打包时：获取最近一次commit变更文件
+    // 本地commit时：获取本地变更文件
     getChangedFiles = {
         if (isReleaseBuildType()) {
             return getRecentlyCommitChangedFiles()
@@ -28,7 +30,23 @@ ext {
         }
     }
 
-    filterCommitter = { String gitStatusInfo, String fileSuffix ->
+    /**
+     *
+     * 根据git diff或者git status查找变更文件
+     *
+     * 示例
+     * git返回的变更文件：
+     M       app/src/main/java/com/xx/xx/xx/TestActivity1.kt
+     D       app/src/main/java/com/xx/xx/xx/TestActivity2.java
+     A       app/src/main/java/com/xx/xx/xx/TestActivity3.java
+     AM      app/src/main/java/com/xx/xx/xx/TestActivity4.java
+     M       build.gradle
+     ...
+     *
+     * 返回：[app/src/main/java/com/xx/xx/xx/TestActivity1.kt, app/src/main/java/com/xx/xx/xx/TestActivity3.java, app/src/main/java/com/xx/xx/xx/TestActivity4.java]
+     *
+     */
+    findChangedFiles = { String gitStatusInfo, String fileSuffix ->
         ArrayList filterList = new ArrayList()
         String[] lines = gitStatusInfo.split("\\n")
         for (String line : lines) {
@@ -49,10 +67,23 @@ ext {
         return filterList
     }
 
+    /**
+     * gradlew -PcheckCommit="true" detekt
+     * gradlew -PcheckCommit="true" checkstyle
+     *
+     * 获取gradlew指令是否包含checkCommit参数
+     */
     hasCheckCommitParam = {
         return project.hasProperty('checkCommit') && project.property("checkCommit")
     }
 
+    /**
+     * 获取文件md5值
+     *
+     * 示例：
+     * 在更新commit-hooks时，需要校验hooks文件是否一致（commit-msg, pre-commit）
+     * 然后决定是否拷贝（commit-msg, pre-commit）至.git/hooks目录
+     */
     generateMD5 = { String path ->
         MessageDigest digest = MessageDigest.getInstance("MD5")
         FileInputStream fis = new FileInputStream(path)
@@ -74,6 +105,9 @@ ext {
         return file1Md5 == file2Md5
     }
 
+    /**
+     * 判断编译类型是否为release版本
+     */
     isReleaseBuildType = {
         for (String s : gradle.startParameter.taskNames) {
             if (s.toLowerCase().contains("release")) {
@@ -102,11 +136,4 @@ installGitHooks.onlyIf {
             !targetPreCommitFile.exists() ||
             !isSameFile(sourceCommitMsgFile, targetCommitMsgFile) ||
             !isSameFile(sourcePreCommitFile, targetPreCommitFile)
-}
-
-afterEvaluate {
-    def prebuild = tasks.findByName("preBuild")
-    if (prebuild != null && !isReleaseBuildType) {
-        prebuild.dependsOn(installGitHooks)
-    }
 }
