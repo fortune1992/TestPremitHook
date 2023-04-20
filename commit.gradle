@@ -4,7 +4,7 @@ ext {
     // 获取本地文件变更：
     // release打包时：获取最近一次commit变更文件
     // 本地commit时：获取本地变更文件
-    getChangedFiles = {
+    getGitStatusFiles = {
         if (isReleaseBuildType()) {
             return getRecentlyCommitChangedFiles()
         } else {
@@ -46,7 +46,7 @@ ext {
      * 返回：[app/src/main/java/com/xx/xx/xx/TestActivity1.kt, app/src/main/java/com/xx/xx/xx/TestActivity3.java, app/src/main/java/com/xx/xx/xx/TestActivity4.java]
      *
      */
-    findChangedFiles = { String gitStatusInfo, String fileSuffix ->
+    filterChangedFiles = { String gitStatusInfo, String fileSuffix ->
         ArrayList filterList = new ArrayList()
         String[] lines = gitStatusInfo.split("\\n")
         for (String line : lines) {
@@ -118,22 +118,27 @@ ext {
     }
 }
 
-task installGitHooks(type: Copy) {
-    from new File(rootProject.rootDir, 'gitHook/commit-msg')
-    from new File(rootProject.rootDir, 'gitHook/pre-commit')
-    into { new File(rootProject.rootDir, '.git/hooks') }
-    fileMode 0755
+task installGitHooks() {
+    doLast {
+        copy {
+            from new File(rootProject.rootDir, 'gitHook/commit-msg')
+            from new File(rootProject.rootDir, 'gitHook/pre-commit')
+            into { new File(rootProject.rootDir, '.git/hooks') }
+            fileMode 0755
+        }
+    }
+
 }
 
-installGitHooks.onlyIf {
-    File targetCommitMsgFile = new File(rootProject.rootDir, '.git/hooks/commit-msg')
-    File sourceCommitMsgFile = new File(rootProject.rootDir, 'gitHook/commit-msg')
-
-    File targetPreCommitFile = new File(rootProject.rootDir, '.git/hooks/pre-commit')
-    File sourcePreCommitFile = new File(rootProject.rootDir, 'gitHook/pre-commit')
-
-    !targetCommitMsgFile.exists() ||
-            !targetPreCommitFile.exists() ||
-            !isSameFile(sourceCommitMsgFile, targetCommitMsgFile) ||
-            !isSameFile(sourcePreCommitFile, targetPreCommitFile)
-}
+//installGitHooks.onlyIf {
+//    File targetCommitMsgFile = new File(rootProject.rootDir, '.git/hooks/commit-msg')
+//    File sourceCommitMsgFile = new File(rootProject.rootDir, 'gitHook/commit-msg')
+//
+//    File targetPreCommitFile = new File(rootProject.rootDir, '.git/hooks/pre-commit')
+//    File sourcePreCommitFile = new File(rootProject.rootDir, 'gitHook/pre-commit')
+//
+//    !targetCommitMsgFile.exists() ||
+//            !targetPreCommitFile.exists() ||
+//            !isSameFile(sourceCommitMsgFile, targetCommitMsgFile) ||
+//            !isSameFile(sourcePreCommitFile, targetPreCommitFile)
+//}

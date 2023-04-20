@@ -26,14 +26,7 @@ task checkstyle(type: Checkstyle) {
     exclude '**/R.java'
     exclude '**/BuildConfig.java'
     if (hasCheckCommitParam() || isReleaseBuildType()) {
-        def filterFileNameList = findChangedFiles(getChangedFiles(), ".java")
-        def includeList = new ArrayList()
-        for (int i = 0; i < filterFileNameList.size(); i++) {
-            String spliter = filterFileNameList[i]
-            String[] spliterList = spliter.split("/")
-            String fileName = spliterList[spliterList.length - 1]
-            includeList.add("**/" + fileName)
-        }
+        def includeList = getCheckStyleIncludeList()
         if (includeList.size() == 0) {
             exclude '**/*.java'
         } else {
@@ -43,6 +36,18 @@ task checkstyle(type: Checkstyle) {
         include '**/*.java'
     }
     classpath = files()
+}
+
+def getCheckStyleIncludeList() {
+    def filterFileNameList = filterChangedFiles(getGitStatusFiles(), ".java")
+    def includeList = new ArrayList()
+    for (int i = 0; i < filterFileNameList.size(); i++) {
+        String spliter = filterFileNameList[i]
+        String[] spliterList = spliter.split("/")
+        String fileName = spliterList[spliterList.length - 1]
+        includeList.add("**/" + fileName)
+    }
+    return includeList
 }
 
 /**
