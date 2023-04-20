@@ -127,18 +127,17 @@ task installGitHooks() {
             fileMode 0755
         }
     }
-
 }
 
-//installGitHooks.onlyIf {
-//    File targetCommitMsgFile = new File(rootProject.rootDir, '.git/hooks/commit-msg')
-//    File sourceCommitMsgFile = new File(rootProject.rootDir, 'gitHook/commit-msg')
-//
-//    File targetPreCommitFile = new File(rootProject.rootDir, '.git/hooks/pre-commit')
-//    File sourcePreCommitFile = new File(rootProject.rootDir, 'gitHook/pre-commit')
-//
-//    !targetCommitMsgFile.exists() ||
-//            !targetPreCommitFile.exists() ||
-//            !isSameFile(sourceCommitMsgFile, targetCommitMsgFile) ||
-//            !isSameFile(sourcePreCommitFile, targetPreCommitFile)
-//}
+installGitHooks.onlyIf {
+    File targetCommitMsgFile = new File(rootProject.rootDir, '.git/hooks/commit-msg')
+    File sourceCommitMsgFile = new File(rootProject.rootDir, 'gitHook/commit-msg')
+
+    File targetPreCommitFile = new File(rootProject.rootDir, '.git/hooks/pre-commit')
+    File sourcePreCommitFile = new File(rootProject.rootDir, 'gitHook/pre-commit')
+
+    !targetCommitMsgFile.exists() ||
+            !targetPreCommitFile.exists() ||
+            !isSameFile(sourceCommitMsgFile, targetCommitMsgFile) ||
+            !isSameFile(sourcePreCommitFile, targetPreCommitFile)
+}

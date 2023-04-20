@@ -15,7 +15,7 @@ if [ $EXIT_CODE -ne 0 ]; then
 fi
 
 # 执行java checkstyle检查
-OUTPUT=`cd $LOCAL_GIT_HOOKS_DIR/../../; ./gradlew -PcheckCommit="true" checkstyle`
+OUTPUT=`cd $LOCAL_GIT_HOOKS_DIR/../../; ./gradlew -PcheckCommit="true" checkJavaStyle`
 
 EXIT_CODE=$?
 if [ $EXIT_CODE -ne 0 ]; then

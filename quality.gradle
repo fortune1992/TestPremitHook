@@ -16,7 +16,7 @@ checkstyle {
     showViolations true
 }
 
-task checkstyle(type: Checkstyle) {
+task checkJavaStyle(type: Checkstyle) {
     description = "Java static code analysis."
     classpath = configurations.checkstyle
     source  'src'
@@ -28,7 +28,7 @@ task checkstyle(type: Checkstyle) {
     if (hasCheckCommitParam() || isReleaseBuildType()) {
         def includeList = getCheckStyleIncludeList()
         if (includeList.size() == 0) {
-            exclude '**/*.java'
+            exclude '*'
         } else {
             include includeList
         }
@@ -36,6 +36,14 @@ task checkstyle(type: Checkstyle) {
         include '**/*.java'
     }
     classpath = files()
+}
+
+checkJavaStyle.onlyIf {
+    if (hasCheckCommitParam() || isReleaseBuildType()) {
+        !getCheckStyleIncludeList().isEmpty()
+    } else {
+        true
+    }
 }
 
 def getCheckStyleIncludeList() {
@@ -62,8 +70,8 @@ afterEvaluate {
     def prebuild = tasks.findByName("preBuild")
     if (prebuild != null) {
         if (isReleaseBuildType()) {
-            // Release 注册deteKt, checkStyle
-            prebuild.dependsOn("detekt", "checkstyle")
+            // Release 注册deteKt, checkJavaStyle
+            prebuild.dependsOn("detekt", "checkJavaStyle")
         } else {
             // DEBUG 注册gitHooks
             if (project.name.equalsIgnoreCase("app")) {
